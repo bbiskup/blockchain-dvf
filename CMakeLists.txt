@@ -9,7 +9,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -O0 -g -Wall -Werror -Weveryt
 set(CMAKE_EXE_LINKER_FLAGS "-fuse-ld=gold -lpthread")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold")
 
-find_package (Boost 1.63  REQUIRED)
+find_package (Boost 1.63 REQUIRED)
 
 file(GLOB_RECURSE proj_lib_sources src/*.cpp)
 list(REMOVE_ITEM proj_lib_sources 
