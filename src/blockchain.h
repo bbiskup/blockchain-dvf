@@ -1,24 +1,49 @@
 #ifndef BLOCKCHAIN_H
 #define BLOCKCHAIN_H
 
-#include <vector>
+#include <boost/optional.hpp>
 #include <string>
+#include <unordered_set>
+#include <vector>
 
-namespace bc{
 
-    class Transaction{
-        public:
-            Transaction(std::string sender, std::string recipient, double amount);
-        private:
-            const std::string sender;
-            const std::string recipient;
-            const double amount;
-    };
+namespace bc {
+using NodeAddr = std::string;
+using Hash = std::string;
 
-    class BlockChain{
-        public:
-        private:
-    };
+class Block {};
+
+using Chain = std::vector<Block>;
+
+class Transaction {
+public:
+  Transaction(std::string sender, std::string recipient, double amount);
+
+private:
+  const std::string sender;
+  const std::string recipient;
+  const double amount;
 };
 
-#endif  /* BLOCKCHAIN_H */
+Hash hash(const Block& block);
+bool validProof(int lastProof, int proof);
+
+class BlockChain {
+public:
+  BlockChain();
+  void registerNode(const NodeAddr address);
+  bool validChain(const Chain& chain) const;
+  bool resolveConflict();
+  Block newBlock(int proof, const boost::optional<Hash>& previousHash);
+  int newTransaction(const std::string& sender, const std::string& recipient,
+                     double amount);
+  const Block& lastBlock() const;
+  int proofOfWork(int lastProof) const;
+
+private:
+  std::vector<Transaction> transactions_;
+  std::unordered_set<NodeAddr> nodes_;
+};
+}; // namespace bc
+
+#endif /* BLOCKCHAIN_H */
