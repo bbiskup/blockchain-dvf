@@ -7,6 +7,7 @@
 #include <vector>
 
 
+#include "vendor/json.hpp"
 namespace bc {
 using NodeAddr = std::string;
 using Hash = std::string;
@@ -15,6 +16,8 @@ struct Block {
    Hash previousHash; 
    int proof;
 };
+
+void to_json(nlohmann::json& j, const bc::Block& block);
 
 std::ostream& operator<<(std::ostream& strm, const Block& block);
 

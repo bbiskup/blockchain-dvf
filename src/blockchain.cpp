@@ -8,7 +8,8 @@
 
 #include "blockchain.h"
 #include "vendor/crow_all.h"
-#include "vendor/json.hpp"
+
+#include "vendor/sha2-1.0.1/sha2.h"
 
 namespace {
 std::string urlParse(const std::string& address);
@@ -29,13 +30,35 @@ std::ostream& bc::operator<<(std::ostream& strm, const bc::Transaction& t) {
               << ", amount" << t.amount;
 }
 
+/// JSON conversion functions
+void bc::to_json(nlohmann::json& j, const bc::Block& block) {
+  j = nlohmann::json{{"previous_hash", block.previousHash},
+                     {"proof", block.proof}};
+}
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
-bc::Hash bc::hash(const Block& block){
-    throw std::runtime_error{"not implemented: hash"};
+
+/// Creates a SHA-256 hash of a Block
+/// \param block Block
+bc::Hash bc::hash(const Block& block) {
+  char buf[SHA256_DIGEST_LENGTH];
+  // We must make sure that the Dictionary is Ordered,
+  // or we'll have inconsistent hashes
+  // json.dumps(block, sort_keys=True).encode();
+  nlohmann::json blockJson = block;
+  std::string blockJsonStr{blockJson.dump()};
+  SHA256_CTX ctx;
+  SHA256_Init(&ctx);
+  // TODO return hashlib.sha256(blockString).hexdigest();
+  char* blockJsonStrC = const_cast<char*>(blockJsonStr.c_str());
+  SHA256_Update(&ctx, reinterpret_cast<unsigned char*>(blockJsonStrC),
+                blockJsonStr.size());
+  SHA256_End(&ctx, buf);
+  return buf;
 }
-bool bc::validProof(int lastProof, int proof){
-    throw std::runtime_error{"not implemented: validProof"};
+bool bc::validProof(int lastProof, int proof) {
+  throw std::runtime_error{"not implemented: validProof"};
 }
 #pragma clang diagnostic pop
 
@@ -50,6 +73,8 @@ void bc::BlockChain::registerNode(const NodeAddr address) {
   nodes_.emplace(urlParse(address));
 }
 
+bc::BlockChain::BlockChain() {}
+
 /// Determine if a given blockchain is valid
 /// \param chain A blockchain
 /// \return true if valid, false if not
@@ -62,8 +87,8 @@ bool bc::BlockChain::validChain(const Chain& chain) const {
 
   for (size_t currentIndex{1}; currentIndex < chainLen; ++currentIndex) {
     const Block& block{chain[currentIndex]};
-    std::cout << "Last block: " << lastBlock << "\n";
-    std::cout << "Block: " << block << "\n";
+    std::cout << "Last block: " << nlohmann::json{lastBlock} << "\n";
+    std::cout << "Block: " << nlohmann::json{block} << "\n";
     std::cout << "\n-----------\n";
 
     // Check that the hash of the block is correct

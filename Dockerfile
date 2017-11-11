@@ -24,4 +24,9 @@ RUN wget -q https://github.com/JosephP91/curlcpp/releases/download/1.1/curlcpp-1
     make -j 4 && \
     make install
 
+RUN wget -q http://www.aarongifford.com/computers/sha2-1.0.1.tgz && \
+    tar xzf sha2-1.0.1.tgz && \
+    cd http://www.aarongifford.com/computers/sha2-1.0.1.tgz && \
+ 
+
 WORKDIR /code

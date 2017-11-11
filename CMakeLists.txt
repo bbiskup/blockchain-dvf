@@ -12,23 +12,26 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold")
 find_package (Boost 1.63 COMPONENTS system REQUIRED)
 
 file(GLOB_RECURSE proj_lib_sources src/*.cpp)
-list(REMOVE_ITEM proj_lib_sources 
+list(REMOVE_ITEM  proj_lib_sources 
      /code/src/main.cpp
-     )
-
- MESSAGE( STATUS "HIER: " ${proj_lib_sources} )
- 
-
+)
 
 set(PROJECT_NAME_LIB ${PROJECT_NAME}_lib)
-add_library(${PROJECT_NAME}_lib OBJECT ${proj_lib_sources})
+add_library(${PROJECT_NAME}_lib OBJECT ${proj_lib_sources} 
+    vendor/sha2-1.0.1/sha2.c
+)
 target_include_directories (${PROJECT_NAME_LIB} 
                             PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_executable(${PROJECT_NAME} $<TARGET_OBJECTS:${PROJECT_NAME_LIB}> src/main.cpp)
+ADD_CUSTOM_COMMAND(
+    COMMAND clang /code/vendor/sha2-1.0.1/sha2.c -c -o sha2.o
+    OUTPUT sha2.o
+    )
+
+add_executable(${PROJECT_NAME} 
+    $<TARGET_OBJECTS:${PROJECT_NAME_LIB}> src/main.cpp sha2.o)
 target_link_libraries(${PROJECT_NAME}  
     -lcurl
     -lboost_system
     /usr/local/lib/libcurlcpp.a
-
 )
