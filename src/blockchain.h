@@ -16,17 +16,19 @@ struct Block {
    int proof;
 };
 
+std::ostream& operator<<(std::ostream& strm, const Block& block);
+
 using Chain = std::vector<Block>;
 
-class Transaction {
-public:
+struct Transaction {
   Transaction(std::string sender, std::string recipient, double amount);
 
-private:
   const std::string sender;
   const std::string recipient;
   const double amount;
 };
+
+std::ostream& operator<<(std::ostream& strm, const Transaction& transaction);
 
 Hash hash(const Block& block);
 bool validProof(int lastProof, int proof);
@@ -46,6 +48,7 @@ public:
 private:
   std::vector<Transaction> transactions_;
   std::unordered_set<NodeAddr> nodes_;
+  Chain chain_;
 };
 }; // namespace bc
 

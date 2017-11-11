@@ -13,7 +13,7 @@ RUN apt-get -qy update && \
         wget \
         xz-utils
 
-RUN apt-get -qy install libcurl4-gnutls-dev curl
+RUN apt-get -qy install libcurl4-gnutls-dev curl libboost-system1.63-dev
 
 RUN wget -q https://github.com/JosephP91/curlcpp/releases/download/1.1/curlcpp-1.1.zip && \
     unzip curlcpp-1.1.zip && \
@@ -21,6 +21,7 @@ RUN wget -q https://github.com/JosephP91/curlcpp/releases/download/1.1/curlcpp-1
     mkdir -p build && \
     cd build && \
     cmake .. && \
-    make -j 4
+    make -j 4 && \
+    make install
 
 WORKDIR /code
