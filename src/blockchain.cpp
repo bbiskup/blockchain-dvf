@@ -17,7 +17,7 @@ bc::Transaction::Transaction(std::string sender_, std::string recipient_,
       amount{amount_} {}
 
 void bc::BlockChain::registerNode(const NodeAddr address) {
-    std::string parsedURL{urlParse(address)};
+    nodes_.emplace(urlParse(address));
 }
 
 namespace {
