@@ -6,6 +6,6 @@ This project is an 1:1 port of the Python blockchain implementation in Daniel va
 # Installation
 ## System Requirements
 
-* A modern C++ compiler (tested with Clang 5)
-* CMake >= 3.5.1
-* Boost >= 1.58.0
+* Docker >= 17.05.0
+* docker-compose >= 1.13.0
+

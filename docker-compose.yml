@@ -1,0 +1,11 @@
+version: '3'
+services:
+    dev:
+      build: .
+      volumes:
+        - .:/code
+        - ./.ccache:/root/.ccache
+        - ./.bash_history:/root/.bash_history
+      command: "bash"
+      stdin_open: true
+      tty: true
