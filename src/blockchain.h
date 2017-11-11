@@ -11,7 +11,10 @@ namespace bc {
 using NodeAddr = std::string;
 using Hash = std::string;
 
-class Block {};
+struct Block {
+   Hash previousHash; 
+   int proof;
+};
 
 using Chain = std::vector<Block>;
 
