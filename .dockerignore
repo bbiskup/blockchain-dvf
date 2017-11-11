@@ -1,0 +1,6 @@
+.git
+CMakeFiles/
+.*.swp
+.ccache
+vgcore*
+build/*
