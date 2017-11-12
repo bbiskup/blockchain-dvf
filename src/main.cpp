@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
                      bpo::bool_switch(&is_help)->default_value(false),
                      "Display help message")(
       "port,p", bpo::value<unsigned short>(&serverPort)->default_value(defaultServerPort),
-      "Server HTTP port");
+      "port to listen on");
   bpo::variables_map vm;
   bpo::store(bpo::parse_command_line(argc, argv, desc), vm);
   bpo::notify(vm); // may throw
