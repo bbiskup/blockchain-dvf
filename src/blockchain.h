@@ -34,6 +34,7 @@ struct Transaction {
 std::ostream& operator<<(std::ostream& strm, const Transaction& transaction);
 
 Hash hash(const Block& block);
+Hash hash(const std::string& s);
 bool validProof(int lastProof, int proof);
 
 class BlockChain {

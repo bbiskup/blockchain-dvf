@@ -36,31 +36,36 @@ void bc::to_json(nlohmann::json& j, const bc::Block& block) {
                      {"proof", block.proof}};
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
-
 /// Creates a SHA-256 hash of a Block
 /// \param block Block
 bc::Hash bc::hash(const Block& block) {
+  nlohmann::json blockJson = block;
+  return hash(blockJson.dump());
+}
+
+bc::Hash bc::hash(const std::string& s) {
   char buf[SHA256_DIGEST_LENGTH];
   // We must make sure that the Dictionary is Ordered,
   // or we'll have inconsistent hashes
   // json.dumps(block, sort_keys=True).encode();
-  nlohmann::json blockJson = block;
-  std::string blockJsonStr{blockJson.dump()};
   SHA256_CTX ctx;
   SHA256_Init(&ctx);
-  // TODO return hashlib.sha256(blockString).hexdigest();
-  char* blockJsonStrC = const_cast<char*>(blockJsonStr.c_str());
-  SHA256_Update(&ctx, reinterpret_cast<unsigned char*>(blockJsonStrC),
-                blockJsonStr.size());
+  char* sTmp = const_cast<char*>(s.c_str());
+  SHA256_Update(&ctx, reinterpret_cast<unsigned char*>(sTmp),
+                s.size());
   SHA256_End(&ctx, buf);
   return buf;
 }
+
+/// Validates the Proof
+/// \param lastProof Previous Proof
+/// \param proof Current Proof
+/// \return: true if correct, false if not.
 bool bc::validProof(int lastProof, int proof) {
-  throw std::runtime_error{"not implemented: validProof"};
+  std::string guess{std::to_string(lastProof) + std::to_string(proof)};
+  std::string guessHash{hash(guess)};
+  return guessHash.substr(0, 4) == "0000";
 }
-#pragma clang diagnostic pop
 
 bc::Transaction::Transaction(std::string sender_, std::string recipient_,
                              double amount_)
