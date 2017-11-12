@@ -6,6 +6,8 @@ services:
         - .:/code
         - ./.ccache:/root/.ccache
         - ./.bash_history:/root/.bash_history
+      ports:
+       - 5000:5000
       command: "bash"
       stdin_open: true
       tty: true
