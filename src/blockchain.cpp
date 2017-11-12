@@ -86,7 +86,10 @@ void bc::BlockChain::registerNode(const NodeAddr address) {
   nodes_.emplace(urlParse(address));
 }
 
-bc::BlockChain::BlockChain() {}
+bc::BlockChain::BlockChain() {
+  // Create the genesis block
+  newBlock(100, boost::optional<Hash>{"1"});
+}
 
 /// Determine if a given blockchain is valid
 /// \param chain A blockchain
@@ -162,11 +165,26 @@ bc::Block bc::BlockChain::newBlock(int proof,
   // Reset the current list of transactions
   currentTransactions_.clear();
 
-  chain_.emplace_back(chain_.size() + 1,
-                      std::chrono::high_resolution_clock::now(), currentTransactions_,
-                      proof, previousHash.value_or(hash(chain_.back())));
+  chain_.emplace_back(
+      chain_.size() + 1, std::chrono::high_resolution_clock::now(),
+      currentTransactions_, proof, previousHash.value_or(hash(chain_.back())));
   return chain_.back();
 }
+
+// Creates a new transaction to go into the next mined Block
+
+// \param sender Address of the Sender
+// \param recipient Address of the Recipient
+// \param amount Amount
+// \return The index of the Block that will hold this transaction
+size_t bc::BlockChain::newTransaction(const std::string& sender,
+                                      const std::string& recipient,
+                                      double amount) {
+  currentTransactions_.emplace_back(sender, recipient, amount);
+  return lastBlock().index + 1;
+}
+
+const bc::Block& bc::BlockChain::lastBlock() const { return chain_.back(); }
 
 namespace {
 std::string urlParse(const std::string& address) {

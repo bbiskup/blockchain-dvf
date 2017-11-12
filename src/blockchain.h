@@ -49,7 +49,7 @@ public:
   bool validChain(const Chain& chain) const;
   bool resolveConflict();
   Block newBlock(int proof, const boost::optional<Hash>& previousHash);
-  int newTransaction(const std::string& sender, const std::string& recipient,
+  size_t newTransaction(const std::string& sender, const std::string& recipient,
                      double amount);
   const Block& lastBlock() const;
   int proofOfWork(int lastProof) const;
