@@ -5,15 +5,17 @@ RUN apt-get -qy update && \
     apt-get -qy install \
         clang \
         cmake \
+        curl \
         gdb \
         less \
+        libboost-system1.63-dev \
         libboost1.63-dev \
+        libcurl4-gnutls-dev \
         ninja-build \
         unzip \
+        valgrind \
         wget \
         xz-utils
-
-RUN apt-get -qy install libcurl4-gnutls-dev curl libboost-system1.63-dev
 
 RUN wget -q https://github.com/JosephP91/curlcpp/releases/download/1.1/curlcpp-1.1.zip && \
     unzip curlcpp-1.1.zip && \
