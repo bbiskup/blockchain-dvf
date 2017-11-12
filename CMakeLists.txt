@@ -9,7 +9,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -O3 -g -Wall -Werror -Weveryt
 set(CMAKE_EXE_LINKER_FLAGS "-fuse-ld=gold ")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold")
 
-find_package (Boost 1.63 COMPONENTS system REQUIRED)
+find_package (Boost 1.63 COMPONENTS system program_options REQUIRED)
 find_package (Threads)
 
 file(GLOB_RECURSE proj_lib_sources src/*.cpp)
@@ -35,5 +35,6 @@ target_link_libraries(${PROJECT_NAME}
     -lpthread
     -lcurl
     -lboost_system
+    -lboost_program_options
     /usr/local/lib/libcurlcpp.a
 )
