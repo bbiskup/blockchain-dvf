@@ -1,3 +1,4 @@
+#include <cassert>
 #include <curl_easy.h>
 #include <curl_exception.h>
 #include <curl_ios.h>
@@ -80,15 +81,15 @@ bc::Block::Block(size_t index_, TimeStamp timeStamp_,
 bc::Block::Block(Hash previousHash_, int proof_)
     : previousHash{previousHash_}, proof{proof_} {}
 
+bc::BlockChain::BlockChain() {
+  // Create the genesis block
+  newBlock(100, boost::optional<Hash>{"1"});
+}
+
 /// Add a new node to the list of nodes
 /// \param address Address of node. Eg. "http://192.168.0.5:5000"
 void bc::BlockChain::registerNode(const NodeAddr address) {
   nodes_.emplace(urlParse(address));
-}
-
-bc::BlockChain::BlockChain() {
-  // Create the genesis block
-  newBlock(100, boost::optional<Hash>{"1"});
 }
 
 /// Determine if a given blockchain is valid
@@ -165,9 +166,15 @@ bc::Block bc::BlockChain::newBlock(int proof,
   // Reset the current list of transactions
   currentTransactions_.clear();
 
-  chain_.emplace_back(
-      chain_.size() + 1, std::chrono::high_resolution_clock::now(),
-      currentTransactions_, proof, previousHash.value_or(hash(chain_.back())));
+  std::cout << "hier" << previousHash.value_or("nix") << std::endl;
+
+  assert(!(!previousHash && chain_.empty()));
+  std::string previousHashValue{previousHash ? *previousHash
+                                             : hash(chain_.back())};
+
+  chain_.emplace_back(chain_.size() + 1,
+                      std::chrono::high_resolution_clock::now(),
+                      currentTransactions_, proof, previousHashValue);
   return chain_.back();
 }
 
@@ -187,8 +194,8 @@ size_t bc::BlockChain::newTransaction(const std::string& sender,
 const bc::Block& bc::BlockChain::lastBlock() const { return chain_.back(); }
 
 /// Simple proof of work algorithm:
-/// - find a number p' such that hash(pp') contains leading 4 zeroes, where p is
-/// the previous p'
+/// - find a number p' such that hash(pp') contains leading 4 zeroes, where p
+/// is the previous p'
 /// - p is the previous proof, and p' is the new proof
 int bc::BlockChain::proofOfWork(int lastProof) const {
   int proof{};
