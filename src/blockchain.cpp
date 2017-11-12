@@ -186,6 +186,19 @@ size_t bc::BlockChain::newTransaction(const std::string& sender,
 
 const bc::Block& bc::BlockChain::lastBlock() const { return chain_.back(); }
 
+/// Simple proof of work algorithm:
+/// - find a number p' such that hash(pp') contains leading 4 zeroes, where p is
+/// the previous p'
+/// - p is the previous proof, and p' is the new proof
+int bc::BlockChain::proofOfWork(int lastProof) const {
+  int proof{};
+  while (!validProof(lastProof, proof)) {
+    ++proof;
+  }
+
+  return proof;
+}
+
 namespace {
 std::string urlParse(const std::string& address) {
   std::match_results<std::string::const_iterator> m;
