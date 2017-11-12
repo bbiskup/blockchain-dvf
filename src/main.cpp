@@ -82,8 +82,7 @@ int main(int argc, char** argv) {
   crow::SimpleApp app;
 
   CROW_ROUTE(app, "/mine")(mine);
-
-  CROW_ROUTE(app, "/add_json").methods("POST"_method)(newTransaction);
+  CROW_ROUTE(app, "/transactions/new").methods("POST"_method)(newTransaction);
 
   app.port(serverPort).multithreaded().run();
 
