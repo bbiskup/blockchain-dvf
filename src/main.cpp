@@ -75,6 +75,7 @@ std::string fullChain() {
 }
 
 std::string consensus() {
+    try{
   bool replaced{blockChain.resolveConflicts()};
 
   nlohmann::json response{{"message", replaced ? "Our chain was replaced"
@@ -82,6 +83,10 @@ std::string consensus() {
                           {"chain", blockChain.chain()}};
 
   return response.dump(jsonIndent);
+  } catch (const std::exception& e) {
+    std::cerr << "Exception: " << e.what() << std::endl;
+    throw;
+  }
 }
 
 crow::response registerNodes(const crow::request& request) {
