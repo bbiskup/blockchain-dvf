@@ -218,7 +218,7 @@ namespace {
 std::string urlParse(const std::string& address) {
   std::match_results<std::string::const_iterator> m;
   if (regex_search(address, m, urlRegex)) {
-    return std::string{m[1].first, m[1].second}; // netloc
+    return std::string{m[2].first, m[2].second}; // netloc
   } else {
     throw std::runtime_error{"Unable to parse URL " + address};
   }
