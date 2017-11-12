@@ -41,6 +41,9 @@ std::string mine() {
 
   // We must receive a reward for finding the proof.
   // The sender is "0" to signify that this node has mined a new coin.
+  blockChain.newTransaction("0", nodeIdentifier, 1);
+
+  // Forge the new Block by adding it to the chain
   const bc::Block& block = blockChain.newBlock(proof, lastBlock.previousHash);
 
   nlohmann::json response{{"message", "New Block Forged"},
@@ -75,14 +78,15 @@ std::string fullChain() {
 }
 
 std::string consensus() {
-    try{
-  bool replaced{blockChain.resolveConflicts()};
+  try {
+    bool replaced{blockChain.resolveConflicts()};
 
-  nlohmann::json response{{"message", replaced ? "Our chain was replaced"
-                                               : "Our chain is authoritative"},
-                          {"chain", blockChain.chain()}};
+    nlohmann::json response{{"message", replaced
+                                            ? "Our chain was replaced"
+                                            : "Our chain is authoritative"},
+                            {"chain", blockChain.chain()}};
 
-  return response.dump(jsonIndent);
+    return response.dump(jsonIndent);
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     throw;
