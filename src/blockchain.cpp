@@ -51,8 +51,7 @@ bc::Hash bc::hash(const std::string& s) {
   SHA256_CTX ctx;
   SHA256_Init(&ctx);
   char* sTmp = const_cast<char*>(s.c_str());
-  SHA256_Update(&ctx, reinterpret_cast<unsigned char*>(sTmp),
-                s.size());
+  SHA256_Update(&ctx, reinterpret_cast<unsigned char*>(sTmp), s.size());
   SHA256_End(&ctx, buf);
   return buf;
 }
@@ -71,6 +70,15 @@ bc::Transaction::Transaction(std::string sender_, std::string recipient_,
                              double amount_)
     : sender{std::move(sender_)}, recipient{std::move(recipient_)},
       amount{amount_} {}
+
+bc::Block::Block(size_t index_, TimeStamp timeStamp_,
+                 std::vector<Transaction> transactions_, int proof_,
+                 Hash previousHash_)
+    : index{index_}, timeStamp{timeStamp_}, transactions{transactions_},
+      previousHash{previousHash_}, proof{proof_} {}
+
+bc::Block::Block(Hash previousHash_, int proof_)
+    : previousHash{previousHash_}, proof{proof_} {}
 
 /// Add a new node to the list of nodes
 /// \param address Address of node. Eg. "http://192.168.0.5:5000"
@@ -143,6 +151,21 @@ bool bc::BlockChain::resolveConflict() {
   }
 
   return false;
+}
+
+/// Create a new Block in the Blockchain
+/// \param proof The proof given by the Proof of Work algorithm
+/// \param previousHash Hash of previous Block
+/// \return New Block
+bc::Block bc::BlockChain::newBlock(int proof,
+                                   const boost::optional<Hash>& previousHash) {
+  // Reset the current list of transactions
+  currentTransactions_.clear();
+
+  chain_.emplace_back(chain_.size() + 1,
+                      std::chrono::high_resolution_clock::now(), currentTransactions_,
+                      proof, previousHash.value_or(hash(chain_.back())));
+  return chain_.back();
 }
 
 namespace {
