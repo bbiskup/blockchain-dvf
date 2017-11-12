@@ -141,14 +141,14 @@ bool bc::BlockChain::resolveConflicts() {
 
   // Grab and verify the chains from all the nodes in our network
   for (const NodeAddr& node : neighbours) {
-    nlohmann::json json{getHTTP("http://" + node + "/chain")};
-
+    nlohmann::json json{nlohmann::json::parse(getHTTP("http://" + node + "/chain"))};
     size_t length{json["length"]};
     Chain chain{chainFromJSON(json["chain"])};
 
     // Check if the length is longer and the chain is valid
     if (length > maxLength && validChain(chain)) {
       maxLength = length;
+      std::cout << "#### new chain" << std::endl;
       newChain = chain;
     }
   }
@@ -212,7 +212,9 @@ int bc::BlockChain::proofOfWork(int lastProof) const {
 }
 
 const bc::Chain& bc::BlockChain::chain() const { return chain_; }
-const std::unordered_set<bc::NodeAddr>& bc::BlockChain::nodes() const { return nodes_; }
+const std::unordered_set<bc::NodeAddr>& bc::BlockChain::nodes() const {
+  return nodes_;
+}
 
 namespace {
 std::string urlParse(const std::string& address) {
