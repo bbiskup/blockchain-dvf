@@ -46,9 +46,6 @@ void bc::to_json(nlohmann::json& j, const bc::Block& block) {
 /// \param block Block
 bc::Hash bc::hash(const Block& block) {
   nlohmann::json blockJson = block;
-  // TODO We must make sure that the Dictionary is Ordered,
-  // or we'll have inconsistent hashes
-  // json.dumps(block, sort_keys=True).encode();
   return hash(blockJson.dump());
 }
 
