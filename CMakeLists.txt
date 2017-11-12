@@ -10,6 +10,7 @@ set(CMAKE_EXE_LINKER_FLAGS "-fuse-ld=gold ")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold")
 
 find_package (Boost 1.63 COMPONENTS system REQUIRED)
+find_package (Threads)
 
 file(GLOB_RECURSE proj_lib_sources src/*.cpp)
 list(REMOVE_ITEM  proj_lib_sources 
@@ -31,6 +32,7 @@ ADD_CUSTOM_COMMAND(
 add_executable(${PROJECT_NAME} 
     $<TARGET_OBJECTS:${PROJECT_NAME_LIB}> src/main.cpp sha2.o)
 target_link_libraries(${PROJECT_NAME}  
+    -lpthread
     -lcurl
     -lboost_system
     /usr/local/lib/libcurlcpp.a
