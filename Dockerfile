@@ -8,14 +8,16 @@ RUN apt-get -qy update && \
         curl \
         gdb \
         less \
-        libboost-system1.63-dev \
-        libboost1.63-dev \
+        libboost-program-options1.62 \
+        libboost-system1.62-dev \
+        libboost1.62-dev \
         libcurl4-gnutls-dev \
         ninja-build \
         unzip \
         valgrind \
         wget \
         xz-utils
+
 
 RUN wget -q https://github.com/JosephP91/curlcpp/releases/download/1.1/curlcpp-1.1.zip && \
     unzip curlcpp-1.1.zip && \
