@@ -15,12 +15,15 @@ const std::string nodeIdentifier{
 const unsigned short defaultServerPort{5000};
 bc::BlockChain blockChain{};
 const short jsonIndent{4};
+
+const int badRequest{400};
 } // namespace
 
 namespace bpo = boost::program_options;
 
 // Endpoint handers
 std::string mine();
+crow::response newTransaction(const crow::request request);
 
 std::string mine() {
   // We run the proof of work algorithm to get the next proof...
@@ -38,6 +41,23 @@ std::string mine() {
                           {"proof", block.proof},
                           {"previous_hash", block.previousHash}};
   return response.dump(jsonIndent);
+}
+
+/// Create a new Transaction
+crow::response newTransaction(const crow::request request) {
+  nlohmann::json values = nlohmann::json::parse(request.body);
+
+  try {
+    size_t index{blockChain.newTransaction(
+        values["sender"], values["recipient"], values["amount"])};
+
+    nlohmann::json response{{"message", "Transaction will be added to Block " +
+                                            std::to_string(index)}};
+    return response.dump();
+  } catch (const std::exception& e) {
+    std::cerr << "Exception: " << e.what() << std::endl;
+    return crow::response{badRequest};
+  }
 }
 
 int main(int argc, char** argv) {
@@ -62,6 +82,8 @@ int main(int argc, char** argv) {
   crow::SimpleApp app;
 
   CROW_ROUTE(app, "/mine")(mine);
+
+  CROW_ROUTE(app, "/add_json").methods("POST"_method)(newTransaction);
 
   app.port(serverPort).multithreaded().run();
 
