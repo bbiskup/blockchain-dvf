@@ -24,6 +24,7 @@ namespace bpo = boost::program_options;
 // Endpoint handers
 std::string mine();
 crow::response newTransaction(const crow::request request);
+std::string fullChain();
 
 std::string mine() {
   // We run the proof of work algorithm to get the next proof...
@@ -60,6 +61,12 @@ crow::response newTransaction(const crow::request request) {
   }
 }
 
+std::string fullChain() {
+  nlohmann::json response{{"chain", blockChain.chain()},
+                          {"length", blockChain.chain().size()}};
+  return response.dump();
+}
+
 int main(int argc, char** argv) {
   bpo::options_description desc{"Allowed options:"};
   bool is_help{false};
@@ -83,6 +90,7 @@ int main(int argc, char** argv) {
 
   CROW_ROUTE(app, "/mine")(mine);
   CROW_ROUTE(app, "/transactions/new").methods("POST"_method)(newTransaction);
+  CROW_ROUTE(app, "/chain")(fullChain);
 
   app.port(serverPort).multithreaded().run();
 

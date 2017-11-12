@@ -211,6 +211,11 @@ int bc::BlockChain::proofOfWork(int lastProof) const {
   return proof;
 }
 
+
+const bc::Chain& bc::BlockChain::chain() const{
+    return chain_;
+}
+
 namespace {
 std::string urlParse(const std::string& address) {
   std::match_results<std::string::const_iterator> m;

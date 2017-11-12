@@ -55,6 +55,7 @@ public:
                      double amount);
   const Block& lastBlock() const;
   int proofOfWork(int lastProof) const;
+  const Chain& chain() const;
 
 private:
   std::vector<Transaction> currentTransactions_;
