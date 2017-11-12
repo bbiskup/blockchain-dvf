@@ -46,19 +46,16 @@ void bc::to_json(nlohmann::json& j, const bc::Block& block) {
 /// \param block Block
 bc::Hash bc::hash(const Block& block) {
   nlohmann::json blockJson = block;
+  // TODO We must make sure that the Dictionary is Ordered,
+  // or we'll have inconsistent hashes
+  // json.dumps(block, sort_keys=True).encode();
   return hash(blockJson.dump());
 }
 
 bc::Hash bc::hash(const std::string& s) {
-  char buf[SHA256_DIGEST_LENGTH];
-  // We must make sure that the Dictionary is Ordered,
-  // or we'll have inconsistent hashes
-  // json.dumps(block, sort_keys=True).encode();
-  SHA256_CTX ctx;
-  SHA256_Init(&ctx);
+  char buf[SHA256_DIGEST_STRING_LENGTH];
   char* sTmp = const_cast<char*>(s.c_str());
-  SHA256_Update(&ctx, reinterpret_cast<unsigned char*>(sTmp), s.size());
-  SHA256_End(&ctx, buf);
+  SHA256_Data(reinterpret_cast<unsigned char*>(sTmp), s.size(), buf);
   return buf;
 }
 
@@ -115,11 +112,13 @@ bool bc::BlockChain::validChain(const Chain& chain) const {
 
     // Check that the hash of the block is correct
     if (block.previousHash != hash(lastBlock)) {
+        std::cout << "Block hash incorrect" << std::endl;
       return false;
     }
 
     // Check that the Proof of Work is correct
     if (!validProof(lastBlock.proof, block.proof)) {
+        std::cout << "Invalid proof" << std::endl;
       return false;
     }
     lastBlock = block;
