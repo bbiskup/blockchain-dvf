@@ -211,10 +211,8 @@ int bc::BlockChain::proofOfWork(int lastProof) const {
   return proof;
 }
 
-
-const bc::Chain& bc::BlockChain::chain() const{
-    return chain_;
-}
+const bc::Chain& bc::BlockChain::chain() const { return chain_; }
+const std::unordered_set<bc::NodeAddr>& bc::BlockChain::nodes() const { return nodes_; }
 
 namespace {
 std::string urlParse(const std::string& address) {

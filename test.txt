@@ -4,3 +4,5 @@ curl http://localhost:5000/mine
 curl -X POST --header "Content-Type:application/json"  --data '{"sender": "abc", "recipient": "def", "amount": 10}'  http://localhost:5000/transactions/new
 
 curl http://localhost:5000/chain
+
+curl -X POST --header "Content-Type:application/json"  --data '{"nodes": ["http://localhost:5001", "http://localhost:5002"]}'  http://localhost:5000/nodes/registe

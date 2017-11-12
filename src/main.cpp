@@ -1,5 +1,6 @@
 #include "vendor/crow_all.h"
 #include "vendor/json.hpp"
+#include <algorithm>
 #include <boost/program_options.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -16,7 +17,11 @@ const unsigned short defaultServerPort{5000};
 bc::BlockChain blockChain{};
 const short jsonIndent{4};
 
+// HTTP response codes
+namespace http {
 const int badRequest{400};
+const int created{201};
+} // namespace http
 } // namespace
 
 namespace bpo = boost::program_options;
@@ -25,6 +30,7 @@ namespace bpo = boost::program_options;
 std::string mine();
 crow::response newTransaction(const crow::request request);
 std::string fullChain();
+crow::response registerNodes(const crow::request& request);
 
 std::string mine() {
   // We run the proof of work algorithm to get the next proof...
@@ -57,7 +63,7 @@ crow::response newTransaction(const crow::request request) {
     return response.dump();
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
-    return crow::response{badRequest};
+    return crow::response{http::badRequest};
   }
 }
 
@@ -65,6 +71,36 @@ std::string fullChain() {
   nlohmann::json response{{"chain", blockChain.chain()},
                           {"length", blockChain.chain().size()}};
   return response.dump();
+}
+
+crow::response registerNodes(const crow::request& request) {
+  nlohmann::json values = nlohmann::json::parse(request.body);
+
+  try {
+    nlohmann::json& nodes = values["nodes"];
+    if (nodes.empty()) {
+      return {http::badRequest, "Error: Please supply a valid list of nodes"};
+    }
+
+    for (const auto& node : nodes) {
+      blockChain.registerNode(node);
+    }
+
+    std::vector<bc::NodeAddr> nodesVec{blockChain.nodes().begin(),
+                                       blockChain.nodes().end()};
+    std::sort(nodesVec.begin(), nodesVec.end());
+
+    nlohmann::json response{
+        "message",
+        "New nodes have been added",
+        "total_nodes",
+        nodesVec,
+    };
+    return {http::created, response.dump()};
+  } catch (const std::exception& e) {
+    std::cerr << "Exception: " << e.what() << std::endl;
+    return crow::response{http::badRequest};
+  }
 }
 
 int main(int argc, char** argv) {
@@ -91,6 +127,7 @@ int main(int argc, char** argv) {
   CROW_ROUTE(app, "/mine")(mine);
   CROW_ROUTE(app, "/transactions/new").methods("POST"_method)(newTransaction);
   CROW_ROUTE(app, "/chain")(fullChain);
+  CROW_ROUTE(app, "/nodes/register").methods("POST"_method)(registerNodes);
 
   app.port(serverPort).multithreaded().run();
 

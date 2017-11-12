@@ -56,6 +56,7 @@ public:
   const Block& lastBlock() const;
   int proofOfWork(int lastProof) const;
   const Chain& chain() const;
+  const std::unordered_set<NodeAddr>& nodes() const;
 
 private:
   std::vector<Transaction> currentTransactions_;
