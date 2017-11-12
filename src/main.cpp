@@ -31,6 +31,7 @@ std::string mine();
 crow::response newTransaction(const crow::request request);
 std::string fullChain();
 crow::response registerNodes(const crow::request& request);
+std::string consensus();
 
 std::string mine() {
   // We run the proof of work algorithm to get the next proof...
@@ -60,7 +61,7 @@ crow::response newTransaction(const crow::request request) {
 
     nlohmann::json response{{"message", "Transaction will be added to Block " +
                                             std::to_string(index)}};
-    return response.dump();
+    return response.dump(jsonIndent);
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return crow::response{http::badRequest};
@@ -70,7 +71,17 @@ crow::response newTransaction(const crow::request request) {
 std::string fullChain() {
   nlohmann::json response{{"chain", blockChain.chain()},
                           {"length", blockChain.chain().size()}};
-  return response.dump();
+  return response.dump(jsonIndent);
+}
+
+std::string consensus() {
+  bool replaced{blockChain.resolveConflicts()};
+
+  nlohmann::json response{{"message", replaced ? "Our chain was replaced"
+                                               : "Our chain is authoritative"},
+                          {"chain", blockChain.chain()}};
+
+  return response.dump(jsonIndent);
 }
 
 crow::response registerNodes(const crow::request& request) {
@@ -96,7 +107,7 @@ crow::response registerNodes(const crow::request& request) {
         "total_nodes",
         nodesVec,
     };
-    return {http::created, response.dump()};
+    return {http::created, response.dump(jsonIndent)};
   } catch (const std::exception& e) {
     std::cerr << "Exception: " << e.what() << std::endl;
     return crow::response{http::badRequest};
@@ -128,6 +139,7 @@ int main(int argc, char** argv) {
   CROW_ROUTE(app, "/transactions/new").methods("POST"_method)(newTransaction);
   CROW_ROUTE(app, "/chain")(fullChain);
   CROW_ROUTE(app, "/nodes/register").methods("POST"_method)(registerNodes);
+  CROW_ROUTE(app, "/nodes/resolve")(consensus);
 
   app.port(serverPort).multithreaded().run();
 

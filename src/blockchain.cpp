@@ -132,7 +132,7 @@ bool bc::BlockChain::validChain(const Chain& chain) const {
 /// This is our consensus algorithm, it resolves conflicts
 /// by replacing our chain with the longest one in the network.
 /// \return true if our chain was replaced, false if not
-bool bc::BlockChain::resolveConflict() {
+bool bc::BlockChain::resolveConflicts() {
   const auto& neighbours = nodes_;
   boost::optional<Chain> newChain;
 

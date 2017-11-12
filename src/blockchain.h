@@ -49,7 +49,7 @@ public:
   BlockChain();
   void registerNode(const NodeAddr address);
   bool validChain(const Chain& chain) const;
-  bool resolveConflict();
+  bool resolveConflicts();
   const Block& newBlock(int proof, const boost::optional<Hash>& previousHash);
   size_t newTransaction(const std::string& sender, const std::string& recipient,
                      double amount);
