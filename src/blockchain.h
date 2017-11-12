@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "vendor/json.hpp"
+
 namespace bc {
 using NodeAddr = std::string;
 using Hash = std::string;
@@ -22,6 +23,7 @@ struct Transaction {
 };
 
 std::ostream& operator<<(std::ostream& strm, const Transaction& transaction);
+void to_json(nlohmann::json& j, const Transaction& transaction);
 
 struct Block {
   Block(size_t index, TimeStamp timeStamp,
@@ -48,7 +50,7 @@ public:
   void registerNode(const NodeAddr address);
   bool validChain(const Chain& chain) const;
   bool resolveConflict();
-  Block newBlock(int proof, const boost::optional<Hash>& previousHash);
+  const Block& newBlock(int proof, const boost::optional<Hash>& previousHash);
   size_t newTransaction(const std::string& sender, const std::string& recipient,
                      double amount);
   const Block& lastBlock() const;

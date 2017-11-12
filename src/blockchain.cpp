@@ -21,6 +21,11 @@ const std::regex urlRegex{"^(?:http://)?([^/]+)(?:/?.*/?)/(.*)$"};
 bc::Chain chainFromJSON(const nlohmann::json& json);
 } // namespace
 
+void bc::to_json(nlohmann::json& j, const bc::Transaction& t) {
+  j = nlohmann::json{
+      {"sender", t.sender}, {"recipient", t.recipient}, {"amount", t.amount}};
+}
+
 std::ostream& bc::operator<<(std::ostream& strm, const Block& block) {
   return strm << "Block prev:" << block.previousHash
               << ", proof:" << block.proof;
@@ -161,8 +166,8 @@ bool bc::BlockChain::resolveConflict() {
 /// \param proof The proof given by the Proof of Work algorithm
 /// \param previousHash Hash of previous Block
 /// \return New Block
-bc::Block bc::BlockChain::newBlock(int proof,
-                                   const boost::optional<Hash>& previousHash) {
+const bc::Block&
+bc::BlockChain::newBlock(int proof, const boost::optional<Hash>& previousHash) {
   // Reset the current list of transactions
   currentTransactions_.clear();
 
