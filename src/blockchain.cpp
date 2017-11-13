@@ -164,18 +164,19 @@ bool bc::BlockChain::resolveConflicts() {
 /// \return New Block
 const bc::Block&
 bc::BlockChain::newBlock(int proof, const boost::optional<Hash>& previousHash) {
-  // Reset the current list of transactions
-  currentTransactions_.clear();
-
-  std::cout << "hier" << previousHash.value_or("nix") << std::endl;
 
   assert(!(!previousHash && chain_.empty()));
   std::string previousHashValue{previousHash ? *previousHash
                                              : hash(chain_.back())};
 
-  chain_.emplace_back(chain_.size() + 1,
+  Block block{chain_.size() + 1,
                       std::chrono::high_resolution_clock::now(),
-                      currentTransactions_, proof, previousHashValue);
+                      currentTransactions_, proof, previousHashValue};
+  
+  // Reset the current list of transactions
+  currentTransactions_.clear();
+
+  chain_.emplace_back(block);
   return chain_.back();
 }
 

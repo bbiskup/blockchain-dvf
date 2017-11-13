@@ -57,7 +57,6 @@ public:
   int proofOfWork(int lastProof) const;
   const Chain& chain() const;
   const std::unordered_set<NodeAddr>& nodes() const;
-
 private:
   std::vector<Transaction> currentTransactions_;
   std::unordered_set<NodeAddr> nodes_;

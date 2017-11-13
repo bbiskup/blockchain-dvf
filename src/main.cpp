@@ -44,7 +44,7 @@ std::string mine() {
   blockChain.newTransaction("0", nodeIdentifier, 1);
 
   // Forge the new Block by adding it to the chain
-  const bc::Block& block = blockChain.newBlock(proof, lastBlock.previousHash);
+  const bc::Block& block = blockChain.newBlock(proof, boost::none);
 
   nlohmann::json response{{"message", "New Block Forged"},
                           {"index", block.index},
