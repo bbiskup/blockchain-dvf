@@ -38,7 +38,12 @@ std::ostream& bc::operator<<(std::ostream& strm, const bc::Transaction& t) {
 
 /// JSON conversion functions
 void bc::to_json(nlohmann::json& j, const bc::Block& block) {
-  j = nlohmann::json{{"previous_hash", block.previousHash},
+  auto epoch = block.timeStamp.time_since_epoch();
+  auto secondsSinceEpoch = std::chrono::duration_cast<std::chrono::seconds>(epoch).count();
+  j = nlohmann::json{{"index", block.index},
+                     {"timestamp", secondsSinceEpoch},
+                     {"transactions", block.transactions},
+                     {"previous_hash", block.previousHash},
                      {"proof", block.proof}};
 }
 
