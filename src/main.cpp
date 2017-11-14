@@ -14,6 +14,7 @@ namespace {
 const std::string nodeIdentifier{
     boost::uuids::to_string(boost::uuids::random_generator()())};
 const unsigned short defaultServerPort{5000};
+
 bc::BlockChain blockChain{};
 const short jsonIndent{4};
 
@@ -150,7 +151,7 @@ int main(int argc, char** argv) {
   CROW_ROUTE(app, "/nodes/register").methods("POST"_method)(registerNodes);
   CROW_ROUTE(app, "/nodes/resolve")(consensus);
 
-  app.port(serverPort).multithreaded().run();
+  app.port(serverPort).concurrency(1).run();
 
   return 0;
 }

@@ -14,7 +14,7 @@ TEST_CASE("BlockChain") {
     REQUIRE(chain.at(0).index == 1);
   }
 
-  SECTION("Genesis block") {
+  SECTION("Initialization: Genesis block") {
     const bc::Block& block{bc.lastBlock()};
     REQUIRE(block.proof == 100);
     REQUIRE(block.previousHash == "1");
@@ -22,9 +22,9 @@ TEST_CASE("BlockChain") {
     REQUIRE(block.transactions.empty());
   }
 
-
-  SECTION("NewTransaction"){
+  SECTION("newTransaction"){
     REQUIRE(bc.newTransaction("test_sender", "test_recipient", 100) == 2);
+    REQUIRE(bc.chain().size() == 1);
   }
 };
 
@@ -58,4 +58,9 @@ TEST_CASE("Transaction") {
   REQUIRE(
       j.dump() ==
       R"({"amount":100.0,"recipient":"test_recipient","sender":"test_sender"})");
+}
+
+TEST_CASE("API"){
+    SECTION("mine"){
+    }
 }
