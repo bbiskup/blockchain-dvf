@@ -109,13 +109,13 @@ bool bc::BlockChain::validChain(const Chain& chain) const {
 
     // Check that the hash of the block is correct
     if (block.previousHash != hash(lastBlock)) {
-        std::cout << "Block hash incorrect" << std::endl;
+      std::cout << "Block hash incorrect" << std::endl;
       return false;
     }
 
     // Check that the Proof of Work is correct
     if (!validProof(lastBlock.proof, block.proof)) {
-        std::cout << "Invalid proof" << std::endl;
+      std::cout << "Invalid proof" << std::endl;
       return false;
     }
     lastBlock = block;
@@ -137,7 +137,8 @@ bool bc::BlockChain::resolveConflicts() {
 
   // Grab and verify the chains from all the nodes in our network
   for (const NodeAddr& node : neighbours) {
-    nlohmann::json json{nlohmann::json::parse(getHTTP("http://" + node + "/chain"))};
+    nlohmann::json json{
+        nlohmann::json::parse(getHTTP("http://" + node + "/chain"))};
     size_t length{json["length"]};
     Chain chain{chainFromJSON(json["chain"])};
 
@@ -169,10 +170,9 @@ bc::BlockChain::newBlock(int proof, const boost::optional<Hash>& previousHash) {
   std::string previousHashValue{previousHash ? *previousHash
                                              : hash(chain_.back())};
 
-  Block block{chain_.size() + 1,
-                      std::chrono::high_resolution_clock::now(),
-                      currentTransactions_, proof, previousHashValue};
-  
+  Block block{chain_.size() + 1, std::chrono::high_resolution_clock::now(),
+              currentTransactions_, proof, previousHashValue};
+
   // Reset the current list of transactions
   currentTransactions_.clear();
 
