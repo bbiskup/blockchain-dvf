@@ -41,3 +41,4 @@ TEST_CASE("hash") {
   REQUIRE(bc::hash("Satoshi_Nakamoto") ==
           "175027194c0b650bf9053eabdd1a1bcb02ac41d0c4800ca39a8ab1501a84dcec");
 }
+TEST_CASE("validProof") { REQUIRE(bc::validProof(100, 35293)); }
