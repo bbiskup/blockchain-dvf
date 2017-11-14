@@ -6,7 +6,9 @@
 TEST_CASE("BlockChain") {
   bc::BlockChain bc;
 
-  SECTION("Chain") {
+  SECTION("Initialization") {
+    REQUIRE(bc.nodes().empty());
+
     const bc::Chain& chain{bc.chain()};
     REQUIRE(chain.size() == 1);
     REQUIRE(chain.at(0).index == 1);
@@ -18,6 +20,11 @@ TEST_CASE("BlockChain") {
     REQUIRE(block.previousHash == "1");
     REQUIRE(block.index == 1);
     REQUIRE(block.transactions.empty());
+  }
+
+
+  SECTION("NewTransaction"){
+    REQUIRE(bc.newTransaction("test_sender", "test_recipient", 100) == 2);
   }
 };
 
