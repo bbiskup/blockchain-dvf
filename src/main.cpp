@@ -15,8 +15,9 @@ const std::string nodeIdentifier{
     boost::uuids::to_string(boost::uuids::random_generator()())};
 const unsigned short defaultServerPort{5000};
 
-bc::BlockChain blockChain{};
-const short jsonIndent{4};
+// avoid necessity to syncronize access to blockchain
+constexpr unsigned short serverConcurrency{1};
+constexpr short jsonIndent{4};
 
 // HTTP response codes
 namespace http {
@@ -27,102 +28,122 @@ const int created{201};
 
 namespace bpo = boost::program_options;
 
-// Endpoint handers
-std::string mine();
-crow::response newTransaction(const crow::request request);
-std::string fullChain();
-crow::response registerNodes(const crow::request& request);
-std::string consensus();
+class Server {
+public:
+  Server(unsigned short serverPort) {
+    // Lambda wrappers required as Crow does not support
+    // pointers to member functions at this point.
+    CROW_ROUTE(app_, "/mine")([this]() { return mine(); });
+    CROW_ROUTE(app_, "/transactions/new")
+        .methods("POST"_method)([this](const crow::request& request) {
+          return newTransaction(request);
+        });
+    CROW_ROUTE(app_, "/chain")([this]() { return fullChain(); });
+    CROW_ROUTE(app_, "/nodes/register")
+        .methods("POST"_method)([this](const crow::request& request) {
+          return registerNodes(request);
+        });
+    CROW_ROUTE(app_, "/nodes/resolve")([this]() { return consensus(); });
+    app_.port(serverPort).concurrency(serverConcurrency);
+  }
 
-std::string mine() {
-  // We run the proof of work algorithm to get the next proof...
-  const bc::Block& lastBlock = blockChain.lastBlock();
-  int lastProof = lastBlock.proof;
-  int proof = blockChain.proofOfWork(lastProof);
+  void run() { app_.run(); }
 
-  // We must receive a reward for finding the proof.
-  // The sender is "0" to signify that this node has mined a new coin.
-  blockChain.newTransaction("0", nodeIdentifier, 1);
+  std::string mine() {
+    // We run the proof of work algorithm to get the next proof...
+    const bc::Block& lastBlock = blockChain_.lastBlock();
+    int lastProof = lastBlock.proof;
+    int proof = blockChain_.proofOfWork(lastProof);
 
-  // Forge the new Block by adding it to the chain
-  const bc::Block& block = blockChain.newBlock(proof, boost::none);
+    // We must receive a reward for finding the proof.
+    // The sender is "0" to signify that this node has mined a new coin.
+    blockChain_.newTransaction("0", nodeIdentifier, 1);
 
-  nlohmann::json response{{"message", "New Block Forged"},
-                          {"index", block.index},
-                          {"transactions", block.transactions},
-                          {"proof", block.proof},
-                          {"previous_hash", block.previousHash}};
-  return response.dump(jsonIndent);
-}
+    // Forge the new Block by adding it to the chain
+    const bc::Block& block = blockChain_.newBlock(proof, boost::none);
 
-/// Create a new Transaction
-crow::response newTransaction(const crow::request request) {
-  nlohmann::json values = nlohmann::json::parse(request.body);
-
-  try {
-    size_t index{blockChain.newTransaction(
-        values["sender"], values["recipient"], values["amount"])};
-
-    nlohmann::json response{{"message", "Transaction will be added to Block " +
-                                            std::to_string(index)}};
+    nlohmann::json response{{"message", "New Block Forged"},
+                            {"index", block.index},
+                            {"transactions", block.transactions},
+                            {"proof", block.proof},
+                            {"previous_hash", block.previousHash}};
     return response.dump(jsonIndent);
-  } catch (const std::exception& e) {
-    std::cerr << "Exception: " << e.what() << std::endl;
-    return crow::response{http::badRequest};
   }
-}
 
-std::string fullChain() {
-  nlohmann::json response{{"chain", blockChain.chain()},
-                          {"length", blockChain.chain().size()}};
-  return response.dump(jsonIndent);
-}
+  /// Create a new Transaction
+  crow::response newTransaction(const crow::request request) {
+    nlohmann::json values = nlohmann::json::parse(request.body);
 
-std::string consensus() {
-  try {
-    bool replaced{blockChain.resolveConflicts()};
+    try {
+      size_t index{blockChain_.newTransaction(
+          values["sender"], values["recipient"], values["amount"])};
 
-    nlohmann::json response{{"message", replaced
-                                            ? "Our chain was replaced"
-                                            : "Our chain is authoritative"},
-                            {"chain", blockChain.chain()}};
+      nlohmann::json response{
+          {"message",
+           "Transaction will be added to Block " + std::to_string(index)}};
+      return response.dump(jsonIndent);
+    } catch (const std::exception& e) {
+      std::cerr << "Exception: " << e.what() << std::endl;
+      return crow::response{http::badRequest};
+    }
+  }
 
+  std::string fullChain() {
+    nlohmann::json response{{"chain", blockChain_.chain()},
+                            {"length", blockChain_.chain().size()}};
     return response.dump(jsonIndent);
-  } catch (const std::exception& e) {
-    std::cerr << "Exception: " << e.what() << std::endl;
-    throw;
   }
-}
 
-crow::response registerNodes(const crow::request& request) {
-  nlohmann::json values = nlohmann::json::parse(request.body);
+  std::string consensus() {
+    try {
+      bool replaced{blockChain_.resolveConflicts()};
 
-  try {
-    nlohmann::json& nodes = values["nodes"];
-    if (nodes.empty()) {
-      return {http::badRequest, "Error: Please supply a valid list of nodes"};
+      nlohmann::json response{{"message", replaced
+                                              ? "Our chain was replaced"
+                                              : "Our chain is authoritative"},
+                              {"chain", blockChain_.chain()}};
+
+      return response.dump(jsonIndent);
+    } catch (const std::exception& e) {
+      std::cerr << "Exception: " << e.what() << std::endl;
+      throw;
     }
-
-    for (const auto& node : nodes) {
-      blockChain.registerNode(node);
-    }
-
-    std::vector<bc::NodeAddr> nodesVec{blockChain.nodes().begin(),
-                                       blockChain.nodes().end()};
-    std::sort(nodesVec.begin(), nodesVec.end());
-
-    nlohmann::json response{
-        "message",
-        "New nodes have been added",
-        "total_nodes",
-        nodesVec,
-    };
-    return {http::created, response.dump(jsonIndent)};
-  } catch (const std::exception& e) {
-    std::cerr << "Exception: " << e.what() << std::endl;
-    return crow::response{http::badRequest};
   }
-}
+
+  crow::response registerNodes(const crow::request& request) {
+    nlohmann::json values = nlohmann::json::parse(request.body);
+
+    try {
+      nlohmann::json& nodes = values["nodes"];
+      if (nodes.empty()) {
+        return {http::badRequest, "Error: Please supply a valid list of nodes"};
+      }
+
+      for (const auto& node : nodes) {
+        blockChain_.registerNode(node);
+      }
+
+      std::vector<bc::NodeAddr> nodesVec{blockChain_.nodes().begin(),
+                                         blockChain_.nodes().end()};
+      std::sort(nodesVec.begin(), nodesVec.end());
+
+      nlohmann::json response{
+          "message",
+          "New nodes have been added",
+          "total_nodes",
+          nodesVec,
+      };
+      return {http::created, response.dump(jsonIndent)};
+    } catch (const std::exception& e) {
+      std::cerr << "Exception: " << e.what() << std::endl;
+      return crow::response{http::badRequest};
+    }
+  }
+
+private:
+  crow::SimpleApp app_;
+  bc::BlockChain blockChain_{};
+};
 
 int main(int argc, char** argv) {
   bpo::options_description desc{"Allowed options:"};
@@ -143,15 +164,8 @@ int main(int argc, char** argv) {
     return 0;
   }
 
-  crow::SimpleApp app;
-
-  CROW_ROUTE(app, "/mine")(mine);
-  CROW_ROUTE(app, "/transactions/new").methods("POST"_method)(newTransaction);
-  CROW_ROUTE(app, "/chain")(fullChain);
-  CROW_ROUTE(app, "/nodes/register").methods("POST"_method)(registerNodes);
-  CROW_ROUTE(app, "/nodes/resolve")(consensus);
-
-  app.port(serverPort).concurrency(1).run();
+  Server server{serverPort};
+  server.run();
 
   return 0;
 }
