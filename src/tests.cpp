@@ -42,3 +42,13 @@ TEST_CASE("hash") {
           "175027194c0b650bf9053eabdd1a1bcb02ac41d0c4800ca39a8ab1501a84dcec");
 }
 TEST_CASE("validProof") { REQUIRE(bc::validProof(100, 35293)); }
+
+TEST_CASE("Transaction") {
+  bc::Transaction transaction{"test_sender", "test_recipient", 100};
+
+  nlohmann::json j;
+  bc::to_json(j, transaction);
+  REQUIRE(
+      j.dump() ==
+      R"({"amount":100.0,"recipient":"test_recipient","sender":"test_sender"})");
+}
