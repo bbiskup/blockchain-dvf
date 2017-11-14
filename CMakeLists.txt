@@ -15,6 +15,7 @@ find_package (Threads)
 file(GLOB_RECURSE proj_lib_sources src/*.cpp)
 list(REMOVE_ITEM  proj_lib_sources 
      /code/src/main.cpp
+     /code/src/tests.cpp
 )
 
 set(PROJECT_NAME_LIB ${PROJECT_NAME}_lib)
@@ -32,6 +33,16 @@ ADD_CUSTOM_COMMAND(
 add_executable(${PROJECT_NAME} 
     $<TARGET_OBJECTS:${PROJECT_NAME_LIB}> src/main.cpp sha2.o)
 target_link_libraries(${PROJECT_NAME}  
+    -lpthread
+    -lcurl
+    -lboost_system
+    -lboost_program_options
+    /usr/local/lib/libcurlcpp.a
+)
+
+add_executable(tests
+    $<TARGET_OBJECTS:${PROJECT_NAME_LIB}> src/tests.cpp sha2.o)
+target_link_libraries(tests
     -lpthread
     -lcurl
     -lboost_system
