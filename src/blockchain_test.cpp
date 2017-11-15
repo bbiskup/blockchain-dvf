@@ -63,7 +63,3 @@ TEST_CASE("Transaction") {
       R"({"amount":100.0,"recipient":"test_recipient","sender":"test_sender"})");
 }
 
-TEST_CASE("API"){
-    SECTION("mine"){
-    }
-}

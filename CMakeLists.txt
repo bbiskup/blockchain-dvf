@@ -15,7 +15,8 @@ find_package (Threads)
 file(GLOB_RECURSE proj_lib_sources src/*.cpp)
 list(REMOVE_ITEM  proj_lib_sources 
      /code/src/main.cpp
-     /code/src/tests.cpp
+     /code/src/blockchain_test.cpp
+     /code/src/api_server_test.cpp
 )
 
 set(PROJECT_NAME_LIB ${PROJECT_NAME}_lib)
@@ -41,7 +42,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 add_executable(tests
-    $<TARGET_OBJECTS:${PROJECT_NAME_LIB}> src/tests.cpp sha2.o)
+    $<TARGET_OBJECTS:${PROJECT_NAME_LIB}> src/blockchain_test.cpp src/api_server_test.cpp sha2.o)
 target_link_libraries(tests
     -lpthread
     -lcurl
