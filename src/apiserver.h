@@ -6,6 +6,8 @@
 #include <string>
 
 namespace bc {
+
+/// REST API
 class Server {
 public:
   Server(unsigned short serverPort);
