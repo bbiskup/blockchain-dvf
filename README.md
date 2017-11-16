@@ -25,6 +25,10 @@ This project is a 1:1 port of the Python blockchain implementation in Daniel van
 
 # Using the API
 
+First, start blockchain server in container:
+
+    $ ./docker-cmd.sh ./build/blockchain-dvf    
+
 ## Mining a block
 
     $ curl http://localhost:5000/mine
