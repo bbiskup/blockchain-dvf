@@ -6,6 +6,8 @@ This project is a 1:1 port of the Python blockchain implementation in Daniel van
 * Comments are taken from original implementation
 * Class and function names match original where appropriate, except for naming convention (`CamelCase` instead of `snake_case`)
 
+[![Build Status](https://travis-ci.org/bbiskup/blockchain-dvf.svg)](https://travis-ci.org/bbiskup/blockchain-dvf)
+
 # Installation
 ## System Requirements
 
