@@ -12,6 +12,11 @@ This project is a 1:1 port of the Python blockchain implementation in Daniel van
 * Docker >= 17.05.0
 * docker-compose >= 1.13.0
 
+## Building the project
+
+    ./bootstrap.sh
+    
+
 # Using the API
 
 ## Mining a block
@@ -23,7 +28,6 @@ This project is a 1:1 port of the Python blockchain implementation in Daniel van
     curl -X POST --header "Content-Type:application/json" \
          --data '{"sender": "abc", "recipient": "def", "amount": 10}' \
          http://localhost:5000/transactions/new
-
 
 ## Retrieving block chain
 

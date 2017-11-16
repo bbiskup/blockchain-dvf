@@ -59,7 +59,6 @@ TEST_CASE("Node Registration") {
         R"({"nodes": ["http://localhost:5001"]})";
     crow::response response = server.registerNodes(request);
     auto j = nlohmann::json::parse(response.body);
-    std::cout << j << std::endl;
     REQUIRE(j["message"] == "New nodes have been added");
     REQUIRE(j["total_nodes"] == std::vector<std::string>{"localhost:5001"});
 }
