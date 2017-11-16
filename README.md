@@ -14,31 +14,34 @@ This project is a 1:1 port of the Python blockchain implementation in Daniel van
 
 ## Building the project
 
-    ./bootstrap.sh
-    
+    $ ./bootstrap.sh
+
+## Running tests
+
+    $ ./run-tests.sh
 
 # Using the API
 
 ## Mining a block
 
-    curl http://localhost:5000/mine
+    $ curl http://localhost:5000/mine
 
 ## Creating a new transaction
 
-    curl -X POST --header "Content-Type:application/json" \
-         --data '{"sender": "abc", "recipient": "def", "amount": 10}' \
-         http://localhost:5000/transactions/new
+    $ curl -X POST --header "Content-Type:application/json" \
+           --data '{"sender": "abc", "recipient": "def", "amount": 10}' \
+           http://localhost:5000/transactions/new
 
 ## Retrieving block chain
 
-    curl http://localhost:5000/chain
+    $ curl http://localhost:5000/chain
 
 ## Registering a new node
 
-    curl -X POST --header "Content-Type:application/json" \
-         --data '{"nodes": ["http://localhost:5001"]}' \
-         http://localhost:5000/nodes/register
+    $ curl -X POST --header "Content-Type:application/json" \
+           --data '{"nodes": ["http://localhost:5001"]}' \
+           http://localhost:5000/nodes/register
 
 ## Resolving chain conflicts (achieving consensus)
 
-    curl http://localhost:5000/nodes/resolve
+    $ curl http://localhost:5000/nodes/resolve
