@@ -1,5 +1,6 @@
 #include "apiserver.h"
 #include "vendor/catch.hpp"
+#include "vendor/crow_all.h"
 #include "vendor/json.hpp"
 
 TEST_CASE("Chain") {
@@ -13,5 +14,17 @@ TEST_CASE("Chain") {
     REQUIRE(chainJson[0].find("timestamp") != chainJson[0].end());
     REQUIRE(chainJson[0]["proof"] == 100);
     REQUIRE(chainJson[0]["transactions"].size() == 0);
+  }
+}
+
+TEST_CASE("Transactions") {
+  bc::Server server{5000};
+  SECTION("newTransaction") {
+    crow::request request{};
+    request.body =
+        R"({"sender": "test_sender", "recipient": "test_recipient", "amount": 10})";
+    crow::response response = server.newTransaction(request);
+    auto j = nlohmann::json::parse(response.body);
+    REQUIRE(j["message"] == "Transaction will be added to Block 2");
   }
 }
