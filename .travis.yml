@@ -1,0 +1,15 @@
+language: cpp
+sudo: required
+services:
+  - docker
+dist: trusty
+
+before_script:
+  - echo $TRAVIS_BUILD_DIR
+  - ls -l .ccache || true
+  - docker --version
+  - docker-compose --version
+
+script:
+  - ./bootstrap.sh
+  - ./run-tests.sh
