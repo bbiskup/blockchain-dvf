@@ -29,6 +29,8 @@ First, start blockchain server in container:
 
     $ ./docker-cmd.sh ./build/blockchain-dvf    
 
+(To reset the blockchain, interrupt the server with `CTRL-c` and start it again.)
+
 ## Mining a block
 
     $ curl http://localhost:5000/mine
