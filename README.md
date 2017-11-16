@@ -16,18 +16,18 @@ This project is a 1:1 port of the Python blockchain implementation in Daniel van
 
 ## Mining a block
 
-  curl http://localhost:5000/mine
+    curl http://localhost:5000/mine
 
 ## Creating a new transaction
 
-  curl -X POST --header "Content-Type:application/json" \
-       --data '{"sender": "abc", "recipient": "def", "amount": 10}' \
-       http://localhost:5000/transactions/new
+    curl -X POST --header "Content-Type:application/json" \
+         --data '{"sender": "abc", "recipient": "def", "amount": 10}' \
+         http://localhost:5000/transactions/new
 
 
 ## Retrieving block chain
 
-  curl http://localhost:5000/chain
+    curl http://localhost:5000/chain
 
 ## Registering a new node
 
