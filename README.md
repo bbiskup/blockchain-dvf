@@ -15,11 +15,32 @@ This project is a 1:1 port of the Python blockchain implementation in Daniel van
 * Docker >= 17.05.0
 * docker-compose >= 1.13.0
 
-## Building the project
+## Building the project for the first time
 
     $ ./bootstrap.sh
 
+## Ongoing development
+
+Start a docker container:
+
+    $ docker-compose up -d
+
+Then, enter a container shell:
+
+    $ ./docker-cmd.sh bash
+    $ cd build
+
+Compile:
+
+    $ ninja
+
+Run tests:
+
+    $ ./tests
+
 ## Running tests
+
+(to be run outside of the Docker container)
 
     $ ./run-tests.sh
 
@@ -27,9 +48,11 @@ This project is a 1:1 port of the Python blockchain implementation in Daniel van
 
 First, start blockchain server in container:
 
+    $ docker-compose up -d
     $ ./docker-cmd.sh ./build/blockchain-dvf    
 
-(To reset the blockchain, interrupt the server with `CTRL-c` and start it again.)
+`docker-compose.yml` maps the container port 5000 to port 5000 on the host.
+To reset the blockchain, interrupt the server with `CTRL-c` and start it again.
 
 ## Mining a block
 

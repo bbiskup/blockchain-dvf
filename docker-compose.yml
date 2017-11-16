@@ -4,7 +4,6 @@ services:
       build: .
       volumes:
         - .:/code
-        - ./.ccache:/root/.ccache
         - ./.bash_history:/root/.bash_history
       ports:
         - 5000:5000
