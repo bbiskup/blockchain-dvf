@@ -38,3 +38,16 @@ TEST_CASE("Consensus") {
     REQUIRE(chainJson[0]["proof"] == 100);
     REQUIRE(chainJson[0]["transactions"].size() == 0);
 }
+
+TEST_CASE("Mining") {
+  bc::Server server{5000};
+    auto j = nlohmann::json::parse(server.mine());
+    REQUIRE(j["message"] == "New Block Forged");
+    REQUIRE(j.find("previous_hash") !=j.end());
+
+    nlohmann::json transJson{j["transactions"]};
+    REQUIRE(transJson.size() == 1);
+    REQUIRE(transJson[0]["amount"] == 1.0);
+    REQUIRE(transJson[0]["sender"] == "0");
+    REQUIRE(transJson[0].find("recipient") != transJson[0].end());
+}
