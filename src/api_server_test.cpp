@@ -5,7 +5,6 @@
 
 TEST_CASE("Chain") {
   bc::Server server{5000};
-  SECTION("fullChain") {
     auto j = nlohmann::json::parse(server.fullChain());
     nlohmann::json chainJson{j["chain"]};
     REQUIRE(chainJson.size() == 1);
@@ -14,17 +13,28 @@ TEST_CASE("Chain") {
     REQUIRE(chainJson[0].find("timestamp") != chainJson[0].end());
     REQUIRE(chainJson[0]["proof"] == 100);
     REQUIRE(chainJson[0]["transactions"].size() == 0);
-  }
 }
 
 TEST_CASE("Transactions") {
   bc::Server server{5000};
-  SECTION("newTransaction") {
     crow::request request{};
     request.body =
         R"({"sender": "test_sender", "recipient": "test_recipient", "amount": 10})";
     crow::response response = server.newTransaction(request);
     auto j = nlohmann::json::parse(response.body);
     REQUIRE(j["message"] == "Transaction will be added to Block 2");
-  }
+}
+
+TEST_CASE("Consensus") {
+  bc::Server server{5000};
+    auto j = nlohmann::json::parse(server.consensus());
+    REQUIRE(j["message"] == "Our chain is authoritative");
+
+    nlohmann::json chainJson{j["chain"]};
+    REQUIRE(chainJson.size() == 1);
+    REQUIRE(chainJson[0]["index"] == 1);
+    REQUIRE(chainJson[0]["previous_hash"] == "1");
+    REQUIRE(chainJson[0].find("timestamp") != chainJson[0].end());
+    REQUIRE(chainJson[0]["proof"] == 100);
+    REQUIRE(chainJson[0]["transactions"].size() == 0);
 }
