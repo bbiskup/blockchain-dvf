@@ -51,3 +51,15 @@ TEST_CASE("Mining") {
     REQUIRE(transJson[0]["sender"] == "0");
     REQUIRE(transJson[0].find("recipient") != transJson[0].end());
 }
+
+TEST_CASE("Node Registration") {
+  bc::Server server{5000};
+    crow::request request{};
+    request.body =
+        R"({"nodes": ["http://localhost:5001"]})";
+    crow::response response = server.registerNodes(request);
+    auto j = nlohmann::json::parse(response.body);
+    std::cout << j << std::endl;
+    REQUIRE(j["message"] == "New nodes have been added");
+    REQUIRE(j["total_nodes"] == std::vector<std::string>{"localhost:5001"});
+}

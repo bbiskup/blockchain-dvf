@@ -1,10 +1,10 @@
 #include "apiserver.h"
 #include "vendor/json.hpp"
 #include <algorithm>
-#include <string>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <string>
 
 namespace {
 const std::string nodeIdentifier{
@@ -117,10 +117,8 @@ crow::response bc::Server::registerNodes(const crow::request& request) {
     std::sort(nodesVec.begin(), nodesVec.end());
 
     nlohmann::json response{
-        "message",
-        "New nodes have been added",
-        "total_nodes",
-        nodesVec,
+        {"message", "New nodes have been added"},
+        {"total_nodes", nodesVec},
     };
     return {http::created, response.dump(jsonIndent)};
   } catch (const std::exception& e) {
