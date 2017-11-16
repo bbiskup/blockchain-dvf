@@ -12,3 +12,29 @@ This project is a 1:1 port of the Python blockchain implementation in Daniel van
 * Docker >= 17.05.0
 * docker-compose >= 1.13.0
 
+# Using the API
+
+## Mining a block
+
+  curl http://localhost:5000/mine
+
+## Creating a new transaction
+
+  curl -X POST --header "Content-Type:application/json" \
+       --data '{"sender": "abc", "recipient": "def", "amount": 10}' \
+       http://localhost:5000/transactions/new
+
+
+## Retrieving block chain
+
+  curl http://localhost:5000/chain
+
+## Registering a new node
+
+    curl -X POST --header "Content-Type:application/json" \
+         --data '{"nodes": ["http://localhost:5001"]}' \
+         http://localhost:5000/nodes/register
+
+## Resolving chain conflicts (achieving consensus)
+
+    curl http://localhost:5000/nodes/resolve
